@@ -1,0 +1,32 @@
+{
+    "highlights": [
+        [
+            {
+                "length": 62,
+                "rects": [
+                    {
+                        "height": 44.250688032670496,
+                        "width": 909.8779259883997,
+                        "x": 350.7456017696497,
+                        "y": 1373.202459161932
+                    }
+                ],
+                "start": 1682,
+                "text": "just in time to see one of the White Pawns roll over and begin"
+            },
+            {
+                "length": 74,
+                "rects": [
+                    {
+                        "height": 44.212698271780255,
+                        "width": 1073.3443446303859,
+                        "x": 142.66362323183003,
+                        "y": 1423.220740116004
+                    }
+                ],
+                "start": 1746,
+                "text": "kicking: she watched it with great curiosity to see what would happen next"
+            }
+        ]
+    ]
+}
