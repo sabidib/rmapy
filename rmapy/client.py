@@ -199,7 +199,7 @@ class Root:
 
         metadata = None
         for entry in link_file.entries:
-            if entry.entry_type == models.FileType.METADATA:
+            if entry.entry_type == models.Metadata:
                 metadata = self.get_link_entry_file_data(entry)
                 break
 
@@ -235,14 +235,3 @@ class Root:
         if 'id' in res_json:
             return res_json['id']
         return ""
-
-
-# upload_pdf_to_root: Done upload_document
-# upload_pdf_to_folder: Done upload_document
-# create_folder: Done create_folder
-# remove document: Done remove_document
-# remove folder: Done, same as remove_document
-# empty trash:
-# open client without changes
-# open client with remove
-# generally change metadata

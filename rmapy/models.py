@@ -9,23 +9,6 @@ from typing import List
 
 from rmapy import utils
 
-
-class FileType(Enum):
-    CONTENT = ".content"
-    METADATA = ".metadata"
-    PAGEDATA = ".pagedata"
-    PDF = ".pdf"
-    LINK_FILE = ".metadata"
-
-    @classmethod
-    def get_type_from_file_name(cls, filename: str) -> T.Optional[FileType]:
-        for file_type in list(FileType):
-            if filename.endswith(file_type.value):
-                return file_type
-
-        return None
-
-
 class DocumentType(Enum):
     Document = "DocumentType"
     Folder = "CollectionType"
@@ -63,13 +46,11 @@ class CloudFile(metaclass=ABCMeta):
 
 CloudFileType = T.TypeVar("CloudFileType", bound=CloudFile)
 
-
 def parse_from_file_type(type: T.Type[CloudFile], data: bytes) -> CloudFile:
     if type == Metadata:
         return Metadata.from_data(data)
     else:
         raise Exception(f"Parsing {type} has not yet been implemented")
-
 
 def get_type_from_file_name(filename: str) -> T.Type[CloudFile]:
     if filename.endswith(Metadata.file_ending):
