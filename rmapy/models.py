@@ -10,8 +10,8 @@ from typing import List
 from rmapy import utils
 
 class DocumentType(Enum):
-    Document = "DocumentType"
-    Folder = "CollectionType"
+    DocumentType = "DocumentType"
+    FolderType = "CollectionType"
 
 
 @dataclass
@@ -19,7 +19,7 @@ class Locator():
     id: str
 
     @classmethod
-    def generate_locator(cls) -> Locator:
+    def generate_locator(cls) -> 'Locator':
         return cls(
             id=utils.generate_path()
         )
@@ -59,6 +59,8 @@ def get_type_from_file_name(filename: str) -> T.Type[CloudFile]:
         return PDF
     elif filename.endswith(Content.file_ending):
         return Content
+    elif filename.endswith(Pagedata.file_ending):
+        return Pagedata
     else:
         raise Exception(f"Could not determine file type for {filename}")
 
@@ -77,11 +79,25 @@ class PDF(CloudFile):
         return self.data
 
     @classmethod
-    def generate(cls, file_path: str) -> PDF:
+    def generate(cls, file_path: str) -> 'PDF':
         with open(file_path, "rb") as data:
             return PDF(
                 data=data.read()
             )
+
+
+@dataclass
+class Pagedata(CloudFile):
+
+    file_ending = ".pagedata"
+
+    data: bytes
+
+    def size(self) -> int:
+        return len(self.data)
+
+    def to_data(self) -> bytes:
+        return self.data
 
 
 @dataclass
@@ -114,7 +130,7 @@ class Metadata(CloudFile):
             "visibleName": self.visibleName
         }
 
-        if self.type == DocumentType.Document:
+        if self.type == DocumentType.DocumentType:
             data["lastOpenedPage"] = self.lastOpenedPage
 
         return json.dumps(data).encode()
@@ -123,7 +139,7 @@ class Metadata(CloudFile):
         return len(self.to_data())
 
     @classmethod
-    def generate(cls, name: str, doc_type: DocumentType, parent: T.Optional[str] = None) -> Metadata:
+    def generate(cls, name: str, doc_type: DocumentType, parent: T.Optional[str] = None) -> 'Metadata':
         return cls(
             deleted=False,
             lastModified=int(datetime.datetime.now().timestamp()),
@@ -139,8 +155,9 @@ class Metadata(CloudFile):
         )
 
     @classmethod
-    def from_data(cls, data: bytes) -> Metadata:
+    def from_data(cls, data: bytes) -> 'Metadata':
         result = json.loads(data.decode())
+        result['type'] = DocumentType[result['type']]
         return Metadata(
             **result
         )
@@ -154,7 +171,7 @@ class Content(CloudFile):
         return len(self.to_data())
 
     @classmethod
-    def generate(cls) -> Content:
+    def generate(cls) -> 'Content':
         return cls()
 
     def to_data(self) -> bytes:
@@ -275,10 +292,10 @@ class RootData(CloudFile):
         return data.encode()
 
     @classmethod
-    def from_data(cls, data: bytes) -> RootData:
+    def from_data(cls, data: bytes):
         lines = data.decode().split("\n")
         version = int(lines[0])
-        entries = [RootEntry.from_line(line) for line in lines[1:]]
+        entries = [RootEntry.from_line(line) for line in lines[1:-1]]
         return cls(
             version=version,
             entries=entries

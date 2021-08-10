@@ -18,15 +18,19 @@ class ClientV2:
             )
 
         self.__api = api_v2.API(token)
-        self.__root = Root.get_current_root(self.__api)
+        if token is not None:
+            self.renew_token()
 
-    def register_device(self, code: str) -> None:
+    def register_device(self, code: str) -> bool:
         token = self.__api.register_device(code)
         dump(token.to_storage_dict())
+        return True
 
-    def renew_token(self) -> None:
+    def renew_token(self) -> bool:
         token = self.__api.renew_token()
         dump(token.to_storage_dict())
+        self.__root = Root.get_current_root(self.__api)
+        return True
 
     def is_auth(self) -> bool:
         return self.__api.is_auth()
@@ -40,7 +44,7 @@ class ClientV2:
         doc_id = utils.generate_doc_id()
 
         metadata = models.Metadata.generate(
-            folder_name, models.DocumentType.Folder, parent)
+            folder_name, models.DocumentType.FolderType, parent)
         content = models.Content.generate()
 
         content_link_entry = self.__root.__upload_link_entry(doc_id, content)
@@ -58,7 +62,7 @@ class ClientV2:
         doc_id = utils.generate_doc_id()
 
         metadata = models.Metadata.generate(
-            name, models.DocumentType.Document, parent)
+            name, models.DocumentType.DocumentType, parent)
         content = models.Content.generate()
         pdf = models.PDF.generate(file_path)
 
@@ -129,7 +133,7 @@ class Root:
         return models.RootData.from_data(root_data), generation
 
     @classmethod
-    def get_current_root(cls, api: api_v2.API) -> Root:
+    def get_current_root(cls, api: api_v2.API) -> 'Root':
         """ Return the current root """
         root_data, generation = Root.get_root(api)
         return Root(api, root_data, generation)

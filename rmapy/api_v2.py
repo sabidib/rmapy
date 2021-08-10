@@ -11,7 +11,7 @@ import requests
 
 from rmapy.const import (DEVICE, DEVICE_TOKEN_URL, SERVICE_MGR_URL, USER_AGENT,
                          USER_TOKEN_URL)
-from rmapy.execptions import AuthError
+from rmapy.exceptions import AuthError
 
 DeviceToken = str
 UserToken = str
@@ -39,9 +39,9 @@ class API:
 
     def __configure_urls(self):
         self.__api_url = self.__get_base_url()
-        self.__download_url = self.__api_url + "/signed-urls/downloads"
-        self.__upload_url = self.__api_url + "/signed-urls/uploads"
-        self.__sync_complete = self.__api_url + "/sync-complete"
+        self.__download_url = self.__api_url + "signed-urls/downloads"
+        self.__upload_url = self.__api_url + "signed-urls/uploads"
+        self.__sync_complete = self.__api_url + "sync-complete"
 
     def __assert_auth(self) -> None:
         if self.__token is None or self.__token.device_token is None:
@@ -59,7 +59,7 @@ class API:
         )
         response.raise_for_status()
         base_url = response.json()["Host"]
-        return base_url.rstrip("/") + "/"
+        return base_url.rstrip("/") + "/" + "api/v1/"
 
     def is_auth(self) -> bool:
         if self.__token is None or self.__token.device_token is None or self.__token.user_token is None:
@@ -76,11 +76,11 @@ class API:
         return res
 
     def register_device(self, code: str) -> Token:
-        uuid = str(uuid.uuid4())
+        _uuid = str(uuid.uuid4())
         body = {
             "code": code,
             "deviceDesc": DEVICE,
-            "deviceID": uuid,
+            "deviceID": _uuid,
         }
         response = self.request(
             "POST", DEVICE_TOKEN_URL, data=json.dumps(body))
@@ -117,10 +117,11 @@ class API:
         _headers = {
             "User-Agent": USER_AGENT,
         }
-        _headers.update(headers)
 
         if self.__token is not None and self.__token.user_token is not None:
             _headers["Authorization"] = f"Bearer {self.__token.user_token}"
+
+        _headers.update(headers)
 
         return requests.request(method, url, data=data, headers=_headers)
 
@@ -131,10 +132,10 @@ class API:
 
         response = None
         if request['http_method'] == "PUT":
-            response = requests.request(
+            response = self.request(
                 "POST", self.__upload_url, data=json.dumps(request))
         elif request['http_method'] == "GET":
-            response = requests.request(
+            response = self.request(
                 "POST", self.__download_url, data=json.dumps(request))
         else:
             raise Exception(f"Could not identify http method for {request}")
@@ -188,7 +189,7 @@ class API:
         response = self.query_api(request)
         data_response = self.get_from_storage(response.json()['url'])
         data = data_response.content
-        generation_str = data_response.headers.get('generation')
+        generation_str = data_response.headers.get('x-goog-generation')
         generation = None
         if generation_str is not None:
             generation = int(generation_str)
