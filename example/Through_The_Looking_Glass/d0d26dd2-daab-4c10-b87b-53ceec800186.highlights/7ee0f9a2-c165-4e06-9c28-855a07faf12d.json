@@ -1,0 +1,32 @@
+{
+    "highlights": [
+        [
+            {
+                "length": 67,
+                "rects": [
+                    {
+                        "height": 44.212698271780255,
+                        "width": 1079.9448491876778,
+                        "x": 181.4840615012429,
+                        "y": 293.673006924716
+                    }
+                ],
+                "start": 290,
+                "text": "“Do you hear the snow against the window-panes, Kitty? How nice and"
+            },
+            {
+                "length": 14,
+                "rects": [
+                    {
+                        "height": 33.91881954308724,
+                        "width": 202.81462420839256,
+                        "x": 143.04347275242662,
+                        "y": 343.61492365056824
+                    }
+                ],
+                "start": 359,
+                "text": "soft it sounds"
+            }
+        ]
+    ]
+}
